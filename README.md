@@ -416,6 +416,40 @@ Key takeaway: signatures win on speed for known threats. ML picks up what signat
 | A09 | Logging and Monitoring Failures | Yes (this is what the defence stack catches) |
 | A10 | SSRF | Not in scope |
 
+## Screenshots
+
+### Reconnaissance
+![Recon](docs/screenshots/01-recon.png)
+Port scanning, HTTP header analysis, technology fingerprinting, and directory brute forcing.
+
+### SQL Injection
+![SQLi](docs/screenshots/02-sqli.png)
+Authentication bypass with 6 payloads, UNION-based data extraction pulling credentials from the database, and database structure enumeration.
+
+### Cross-Site Scripting
+![XSS](docs/screenshots/03-xss.png)
+16 reflected XSS payloads and 8 stored XSS payloads verified across search and review endpoints.
+
+### Brute Force
+![Brute Force](docs/screenshots/04-brute-force.png)
+Dictionary attack across 500 username/password combinations, 5 valid credentials recovered at 179 attempts/second.
+
+### IDOR
+![IDOR](docs/screenshots/05-idor.png)
+Horizontal privilege escalation enumerating 6 user profiles with email addresses via sequential ID manipulation.
+
+### File Upload Exploitation
+![File Upload](docs/screenshots/06-file-upload.png)
+6 web shells uploaded, 13 files accessible via download endpoint, directory traversal confirmed reading application source code.
+
+### ML-Based Detection
+![ML Detection](docs/screenshots/07-ml-detection.png)
+Random forest classifier achieving 100% accuracy on both attack and benign traffic classification with confidence scores.
+
+### Pipeline Summary
+![Pipeline Summary](docs/screenshots/08-pipeline-summary.png)
+Full pipeline completion summary showing all 8 phases executed.
+
 ## Roadmap
 
 - [ ] Add CSRF vulnerabilities to TravelBird
