@@ -152,23 +152,23 @@ def main():
     with open(eve_path, "w") as f:
         for alert in alerts:
             f.write(json.dumps(alert) + "\n")
-    print(f"[+] wrote {len(alerts)} alerts to {eve_path}")
+    print(f"[+] wrote {len(alerts)} alerts to sample_logs/eve.json")
 
     # access log
     access_lines = generate_access_log(start)
     access_path = os.path.join(OUTPUT_DIR, "access.log")
     with open(access_path, "w") as f:
         f.write("\n".join(access_lines) + "\n")
-    print(f"[+] wrote {len(access_lines)} entries to {access_path}")
+    print(f"[+] wrote {len(access_lines)} entries to sample_logs/access.log")
 
     # auth log
     auth_lines = generate_auth_log(start)
     auth_path = os.path.join(OUTPUT_DIR, "auth.log")
     with open(auth_path, "w") as f:
         f.write("\n".join(auth_lines) + "\n")
-    print(f"[+] wrote {len(auth_lines)} entries to {auth_path}")
+    print(f"[+] wrote {len(auth_lines)} entries to sample_logs/auth.log")
 
-    print(f"[+] sample logs generated in {OUTPUT_DIR}/")
+    print(f"[+] sample logs generated in sample_logs/")
 
 
 if __name__ == "__main__":
