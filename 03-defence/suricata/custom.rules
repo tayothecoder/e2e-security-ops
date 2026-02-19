@@ -1,0 +1,59 @@
+# custom suricata rules for web app monitoring
+# sid range: 1000001-1000099
+
+# --- sql injection detection ---
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"sqli - union select in uri"; flow:established,to_server; http.uri; content:"UNION"; nocase; content:"SELECT"; nocase; distance:0; classtype:web-application-attack; sid:1000001; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"sqli - or 1=1 in uri"; flow:established,to_server; http.uri; content:"OR"; nocase; content:"1=1"; distance:0; classtype:web-application-attack; sid:1000002; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"sqli - single quote attack in uri"; flow:established,to_server; http.uri; content:"'"; pcre:"/(\%27|')(\s|%20)*(OR|AND|UNION|SELECT|DROP|INSERT|UPDATE|DELETE)/Ui"; classtype:web-application-attack; sid:1000003; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"sqli - sqlmap user agent detected"; flow:established,to_server; http.user_agent; content:"sqlmap"; nocase; classtype:web-application-attack; sid:1000004; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"sqli - comment injection attempt"; flow:established,to_server; http.uri; content:"--"; pcre:"/(\%27|').*(--)|(\/\*)/Ui"; classtype:web-application-attack; sid:1000005; rev:1;)
+
+# --- xss detection ---
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"xss - script tag in request"; flow:established,to_server; http.uri; content:"<script"; nocase; classtype:web-application-attack; sid:1000010; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"xss - onerror event handler"; flow:established,to_server; http.uri; content:"onerror"; nocase; content:"="; distance:0; classtype:web-application-attack; sid:1000011; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"xss - javascript uri scheme"; flow:established,to_server; http.uri; content:"javascript"; nocase; content:":"; distance:0; classtype:web-application-attack; sid:1000012; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"xss - script tag in post body"; flow:established,to_server; http.request_body; content:"<script"; nocase; classtype:web-application-attack; sid:1000013; rev:1;)
+
+# --- directory traversal ---
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"directory traversal - dot dot slash in uri"; flow:established,to_server; http.uri; content:"../"; classtype:web-application-attack; sid:1000020; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"directory traversal - encoded dot dot slash"; flow:established,to_server; http.uri.raw; content:"%2e%2e%2f"; nocase; classtype:web-application-attack; sid:1000021; rev:1;)
+
+# --- web shell upload ---
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"web shell upload - php file in multipart"; flow:established,to_server; http.request_body; content:"filename="; nocase; content:".php"; distance:0; within:50; classtype:web-application-attack; sid:1000030; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"web shell upload - jsp file in multipart"; flow:established,to_server; http.request_body; content:"filename="; nocase; content:".jsp"; distance:0; within:50; classtype:web-application-attack; sid:1000031; rev:1;)
+
+# --- brute force login ---
+# uses threshold to trigger after 10 POST requests to /login in 30 seconds
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"brute force - rapid login attempts"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; threshold:type threshold, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:1000040; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"brute force - rapid auth attempts"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/auth"; threshold:type threshold, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:1000041; rev:1;)
+
+# --- suspicious file downloads ---
+
+alert http $HTTP_SERVERS $HTTP_PORTS -> $EXTERNAL_NET any (msg:"suspicious download - executable in http response"; flow:established,to_client; http.response_body; content:"MZ"; startswith; content:"This program"; distance:0; classtype:policy-violation; sid:1000050; rev:1;)
+
+alert http $HTTP_SERVERS $HTTP_PORTS -> $EXTERNAL_NET any (msg:"suspicious download - elf binary in http response"; flow:established,to_client; http.response_body; content:"|7f|ELF"; startswith; classtype:policy-violation; sid:1000051; rev:1;)
+
+# --- reconnaissance tools ---
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"recon - nmap scripting engine detected"; flow:established,to_server; http.user_agent; content:"Nmap"; nocase; classtype:attempted-recon; sid:1000060; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"recon - nikto scanner detected"; flow:established,to_server; http.user_agent; content:"Nikto"; nocase; classtype:attempted-recon; sid:1000061; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"recon - dirb scanner detected"; flow:established,to_server; http.user_agent; content:"DirBuster"; nocase; classtype:attempted-recon; sid:1000062; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"recon - gobuster scanner detected"; flow:established,to_server; http.user_agent; content:"gobuster"; nocase; classtype:attempted-recon; sid:1000063; rev:1;)

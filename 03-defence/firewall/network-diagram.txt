@@ -1,0 +1,88 @@
+
+                        security operations - network architecture
+    ═══════════════════════════════════════════════════════════════════
+
+                              ┌─────────────┐
+                              │  internet /  │
+                              │  attackers   │
+                              └──────┬───────┘
+                                     │
+                                     │ external traffic
+                                     │
+                          ┌──────────┴──────────┐
+                          │    iptables firewall │
+                          │                     │
+                          │  allow: 80,443,2200 │
+                          │  rate limit + log   │
+                          │  drop everything    │
+                          └──┬──────┬───────┬───┘
+                             │      │       │
+                   ┌─────────┘      │       └─────────┐
+                   │                │                  │
+            ┌──────┴──────┐  ┌─────┴──────┐   ┌──────┴──────┐
+            │  web app    │  │   cowrie    │   │  ssh (2200) │
+            │  :80/:443   │  │  honeypot   │   │  real admin │
+            │             │  │  :22->2222  │   │  access     │
+            │  (target)   │  │  :23->2323  │   │             │
+            └──────┬──────┘  └─────┬──────┘   └─────────────┘
+                   │               │
+          traffic  │               │ attacker sessions
+          mirror   │               │ logged as json
+                   │               │
+            ┌──────┴──────┐        │
+            │  suricata   │        │
+            │  ids        │        │
+            │             │        │
+            │  monitors   │        │
+            │  all http   │        │
+            │  traffic    │        │
+            └──────┬──────┘        │
+                   │               │
+            eve.json               │ cowrie.json
+                   │               │
+            ┌──────┴───────────────┴──────┐
+            │         filebeat            │
+            │   collects + ships logs     │
+            └─────────────┬───────────────┘
+                          │
+                          │ :5044 (beats protocol)
+                          │
+                   ┌──────┴──────┐
+                   │  logstash   │
+                   │             │
+                   │  parse json │
+                   │  add geoip  │
+                   │  tag alerts │
+                   └──────┬──────┘
+                          │
+                          │ :9200 (http)
+                          │
+                   ┌──────┴──────┐
+                   │elasticsearch│
+                   │             │
+                   │ secops-*    │
+                   │ indices     │
+                   └──────┬──────┘
+                          │
+                          │ :5601 (http)
+                          │
+                   ┌──────┴──────┐
+                   │   kibana    │
+                   │             │
+                   │ dashboards  │
+                   │ alerts view │
+                   │ honeypot    │
+                   │ activity    │
+                   └─────────────┘
+
+
+    data flow:
+    ──────────
+    1. traffic hits firewall, gets filtered
+    2. legitimate http goes to web app, suricata inspects it
+    3. ssh brute force attempts land on cowrie honeypot
+    4. suricata writes alerts to eve.json
+    5. cowrie logs sessions to cowrie.json
+    6. filebeat ships both to logstash
+    7. logstash parses, enriches, sends to elasticsearch
+    8. kibana visualises everything on the secops dashboard

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% set title = profile_user.fullname + "'s Profile" %}
+{% block content %}
+<div class="profile-card">
+    <h2>{{ profile_user.fullname }}</h2>
+    <div class="info">Username: <span>{{ profile_user.username }}</span></div>
+    <div class="info">Email: <span>{{ profile_user.email }}</span></div>
+    <div class="info">Phone: <span>{{ profile_user.phone }}</span></div>
+    <div class="info">Role: <span>{{ profile_user.role }}</span></div>
+</div>
+
+<h3 style="margin-top:2rem;">Bookings</h3>
+{% if bookings %}
+<table>
+    <tr><th>Package</th><th>Destination</th><th>Date</th><th>Status</th></tr>
+    {% for b in bookings %}
+    <tr>
+        <td>{{ b.package_name }}</td>
+        <td>{{ b.destination }}</td>
+        <td>{{ b.booking_date }}</td>
+        <td>{{ b.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p style="color:#888; margin-top:1rem;">No bookings yet.</p>
+{% endif %}
+{% endblock %}

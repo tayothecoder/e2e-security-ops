@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set title = package.name %}
+{% block content %}
+<div class="detail-header">
+    <h1>{{ package.name }}</h1>
+    <div class="dest">📍 {{ package.destination }}</div>
+</div>
+
+<p style="color:#ccc; line-height:1.6; margin-bottom:1.5rem;">{{ package.description }}</p>
+
+<div class="detail-info">
+    <div class="price">€{{ "%.0f"|format(package.price) }}</div>
+    <div class="duration">{{ package.duration_days }} days / {{ package.duration_days - 1 }} nights</div>
+</div>
+
+{% if user %}
+<form method="post" action="/book/{{ package.id }}">
+    <button type="submit" class="btn btn-green">Book Now</button>
+</form>
+{% else %}
+<p><a href="/login" class="btn">Login to Book</a></p>
+{% endif %}
+
+<hr style="border-color:#2a2a4a; margin: 2rem 0;">
+
+<h3>Reviews</h3>
+<a href="/reviews/{{ package.id }}" class="btn btn-sm" style="margin: 1rem 0; display:inline-block;">See All Reviews / Write One</a>
+
+{% for review in reviews[:3] %}
+<div class="review">
+    <div class="review-header">
+        <span class="author">{{ review.username }}</span>
+        <span class="stars">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</span>
+    </div>
+    <div class="review-content">{{ review.content }}</div>
+</div>
+{% endfor %}
+{% endblock %}

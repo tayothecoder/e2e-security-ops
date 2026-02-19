@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set title = "Search" %}
+{% block content %}
+<h2>Search Packages</h2>
+<form action="/search" method="get" class="search-bar" style="margin: 1.5rem 0;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search destinations...">
+    <button type="submit">Search</button>
+</form>
+
+{% if query %}
+    <p style="color:#aaa; margin-bottom:1rem;">Showing results for: <strong>{{ query|safe }}</strong></p>
+{% endif %}
+
+{% if results %}
+<div class="packages-grid">
+    {% for pkg in results %}
+    <div class="card">
+        <div class="card-body">
+            <h3>{{ pkg.name }}</h3>
+            <div class="dest">📍 {{ pkg.destination }}</div>
+            <div class="desc">{{ pkg.description[:120] }}...</div>
+            <div class="meta">
+                <span class="price">€{{ "%.0f"|format(pkg.price) }}</span>
+                <span class="duration">{{ pkg.duration_days }} days</span>
+            </div>
+            <br>
+            <a href="/package/{{ pkg.id }}" class="btn btn-sm">View Details</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% elif query %}
+    <p style="color:#888">No packages found matching your search.</p>
+{% endif %}
+{% endblock %}

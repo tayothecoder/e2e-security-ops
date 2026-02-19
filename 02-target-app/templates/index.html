@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+    <h1>Find Your Perfect Getaway</h1>
+    <p>Handpicked holiday packages to the world's most amazing destinations</p>
+    <form action="/search" method="get" class="search-bar">
+        <input type="text" name="q" placeholder="Where do you want to go?">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<h2>Popular Packages</h2>
+<div class="packages-grid">
+    {% for pkg in packages %}
+    <div class="card">
+        <div class="card-body">
+            <h3>{{ pkg.name }}</h3>
+            <div class="dest">📍 {{ pkg.destination }}</div>
+            <div class="desc">{{ pkg.description[:120] }}...</div>
+            <div class="meta">
+                <span class="price">€{{ "%.0f"|format(pkg.price) }}</span>
+                <span class="duration">{{ pkg.duration_days }} days</span>
+            </div>
+            <br>
+            <a href="/package/{{ pkg.id }}" class="btn btn-sm">View Details</a>
+            <a href="/reviews/{{ pkg.id }}" class="btn btn-sm btn-green">Reviews</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

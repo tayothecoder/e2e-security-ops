@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% set title = "Upload Documents" %}
+{% block content %}
+<h2>Upload Travel Documents</h2>
+<p style="color:#aaa; margin-bottom:1.5rem;">Upload your passport scans, travel insurance, or other documents for your trip.</p>
+
+<div style="background:#16213e; padding:1.5rem; border-radius:10px; margin-bottom:2rem;">
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Select File</label>
+            <input type="file" name="file">
+        </div>
+        <button type="submit" class="btn">Upload</button>
+    </form>
+</div>
+
+<h3>Your Files</h3>
+<ul class="file-list">
+    {% for f in files %}
+    <li>
+        {{ f }}
+        &nbsp; <a href="/download?file={{ f }}" class="btn btn-sm">Download</a>
+    </li>
+    {% else %}
+    <li style="color:#888">No files uploaded yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

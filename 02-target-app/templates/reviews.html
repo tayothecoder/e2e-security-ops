@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set title = "Reviews - " + package.name %}
+{% block content %}
+<h2>Reviews for {{ package.name }}</h2>
+<p style="color:#e94560; margin-bottom:1.5rem;">📍 {{ package.destination }}</p>
+
+{% if user %}
+<div style="background:#16213e; padding:1.5rem; border-radius:10px; margin-bottom:2rem;">
+    <h3>Write a Review</h3>
+    <form method="post">
+        <div class="form-group">
+            <label>Rating</label>
+            <select name="rating">
+                <option value="5">★★★★★ (5)</option>
+                <option value="4">★★★★☆ (4)</option>
+                <option value="3">★★★☆☆ (3)</option>
+                <option value="2">★★☆☆☆ (2)</option>
+                <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Your Review</label>
+            <textarea name="content" placeholder="Share your experience..."></textarea>
+        </div>
+        <button type="submit" class="btn">Post Review</button>
+    </form>
+</div>
+{% else %}
+<p style="margin-bottom:1.5rem;"><a href="/login">Login</a> to leave a review.</p>
+{% endif %}
+
+{% for review in reviews %}
+<div class="review">
+    <div class="review-header">
+        <span class="author">{{ review.username }}</span>
+        <span class="stars">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</span>
+    </div>
+    <!-- render the review content -->
+    <div class="review-content">{{ review.content|safe }}</div>
+</div>
+{% endfor %}
+
+{% if not reviews %}
+<p style="color:#888">No reviews yet. Be the first to share your experience.</p>
+{% endif %}
+
+<br>
+<a href="/package/{{ package.id }}">&larr; Back to package</a>
+{% endblock %}

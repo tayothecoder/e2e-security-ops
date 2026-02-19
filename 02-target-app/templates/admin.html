@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set title = "Admin Panel" %}
+{% block content %}
+<h2>Admin Panel</h2>
+
+<h3 style="margin-top:1.5rem;">Users</h3>
+<table>
+    <tr><th>ID</th><th>Username</th><th>Email</th><th>Full Name</th><th>Role</th><th>Password</th></tr>
+    {% for u in users %}
+    <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.fullname }}</td>
+        <td>{{ u.role }}</td>
+        <td>{{ u.password }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3 style="margin-top:2rem;">Recent Bookings</h3>
+{% if bookings %}
+<table>
+    <tr><th>ID</th><th>User</th><th>Package</th><th>Date</th><th>Status</th></tr>
+    {% for b in bookings %}
+    <tr>
+        <td>{{ b.id }}</td>
+        <td>{{ b.username }}</td>
+        <td>{{ b.package_name }}</td>
+        <td>{{ b.booking_date }}</td>
+        <td>{{ b.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p style="color:#888">No bookings yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+# cowrie fake credentials
+# format: username:uid:password
+# use * to allow any password, x to deny all
+# these are intentionally weak to attract brute forcers
+
+root:0:root
+root:0:toor
+root:0:password
+root:0:123456
+root:0:admin
+admin:1000:admin
+admin:1000:password
+admin:1000:admin123
+ubuntu:1001:ubuntu
+ubuntu:1001:password
+deploy:1002:deploy
+deploy:1002:deploy123
+postgres:1003:postgres
+mysql:1004:mysql
+www-data:33:www-data
+jenkins:1005:jenkins
+git:1006:git
+test:1007:test
+test:1007:test123
+user:1008:user
+user:1008:password
+guest:1009:guest
+guest:1009:*
+pi:1010:raspberry
+ftpuser:1011:ftpuser
+backup:1012:backup123
+nagios:1013:nagios
