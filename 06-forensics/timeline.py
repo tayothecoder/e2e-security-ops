@@ -127,7 +127,13 @@ def parse_auth_log(filepath):
     # auth log timestamp format (no year, need to assume current year)
     current_year = datetime.now().year
 
-    with open(filepath, 'r') as f:
+    try:
+        f = open(filepath, 'r')
+    except PermissionError:
+        print(f"  [skip] {filepath} permission denied")
+        return events
+
+    with f:
         for line in f:
             line = line.strip()
             if not line:
@@ -213,20 +219,36 @@ def write_markdown(timeline, output_path):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("usage: timeline.py <output_dir> [eve.json] [access.log] [auth.log]")
-        print("")
-        print("builds a unified timeline from multiple log sources.")
-        print("if log paths are not specified, looks in /var/log/ defaults.")
+    import argparse
+    ap = argparse.ArgumentParser(description='build unified timeline from multiple log sources')
+    ap.add_argument('output_dir', nargs='?', default=None,
+                    help='output directory (positional, legacy)')
+    ap.add_argument('--suricata', default='/var/log/suricata/eve.json',
+                    help='path to suricata eve.json')
+    ap.add_argument('--access-log', default='/var/log/apache2/access.log',
+                    help='path to apache access log')
+    ap.add_argument('--auth-log', default='/var/log/auth.log',
+                    help='path to auth log')
+    ap.add_argument('--output', default=None,
+                    help='output file path for markdown report')
+    args = ap.parse_args()
+
+    # figure out where to write
+    if args.output:
+        output_dir = os.path.dirname(args.output) or '.'
+        output_md = args.output
+    elif args.output_dir:
+        output_dir = args.output_dir
+        output_md = os.path.join(output_dir, 'timeline.md')
+    else:
+        print("error: provide --output <file> or a positional output directory")
         sys.exit(1)
 
-    output_dir = sys.argv[1]
     os.makedirs(output_dir, exist_ok=True)
 
-    # determine log file paths
-    eve_path = sys.argv[2] if len(sys.argv) > 2 else '/var/log/suricata/eve.json'
-    access_path = sys.argv[3] if len(sys.argv) > 3 else '/var/log/apache2/access.log'
-    auth_path = sys.argv[4] if len(sys.argv) > 4 else '/var/log/auth.log'
+    eve_path = args.suricata
+    access_path = args.access_log
+    auth_path = args.auth_log
 
     print("[*] building incident timeline")
     print(f"    eve.json:   {eve_path}")
@@ -247,7 +269,7 @@ def main():
     print(f"\n[*] total events in timeline: {len(timeline)}")
 
     write_json(timeline, os.path.join(output_dir, 'timeline.json'))
-    write_markdown(timeline, os.path.join(output_dir, 'timeline.md'))
+    write_markdown(timeline, output_md)
 
     print("[*] done")
 

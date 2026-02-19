@@ -23,7 +23,7 @@ def load_json(path):
 def severity_badge(level):
     """return a markdown badge for severity"""
     colors = {"critical": "[!]", "high": "[!]", "medium": "[*]", "low": "[-]", "info": "[i]"}
-    return colors.get(level, "⚪")
+    return colors.get(level, "[ ]")
 
 
 def generate_markdown_report(data, output_path="pentest_report.md"):

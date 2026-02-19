@@ -113,19 +113,32 @@ def predict_single(bundle, features_dict):
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("usage:")
-        print("  predict.py <model.pkl> <input.csv>")
-        print("  predict.py <model.pkl> --flow duration=0.5 protocol=tcp src_bytes=1024 ...")
-        sys.exit(1)
+    import argparse
+    ap = argparse.ArgumentParser(description='predict network flows using trained model')
+    ap.add_argument('--model', default='model.pkl', help='path to model.pkl')
+    ap.add_argument('--csv', default=None, help='csv file to classify')
+    ap.add_argument('--flow', nargs='*', default=None, help='key=value features for single flow')
+    # legacy positional support
+    ap.add_argument('args', nargs='*', help=argparse.SUPPRESS)
+    args = ap.parse_args()
 
-    model_path = sys.argv[1]
+    # figure out model path
+    model_path = args.model
+    if args.args and not args.csv and not args.flow:
+        # legacy: predict.py model.pkl input.csv
+        model_path = args.args[0]
+        if len(args.args) > 1:
+            if args.args[1] == '--flow':
+                args.flow = args.args[2:]
+            else:
+                args.csv = args.args[1]
+
     bundle = load_model(model_path)
 
-    if sys.argv[2] == '--flow':
+    if args.flow is not None:
         # parse key=value pairs from command line
         features = {}
-        for arg in sys.argv[3:]:
+        for arg in args.flow:
             if '=' not in arg:
                 print(f"warning: skipping malformed argument '{arg}' (expected key=value)")
                 continue
@@ -145,8 +158,8 @@ def main():
         print(f"  confidence: {result['confidence']:.4f}")
         print(f"  attack probability: {result['attack_probability']:.4f}")
 
-    else:
-        csv_path = sys.argv[2]
+    elif args.csv:
+        csv_path = args.csv
         if not os.path.exists(csv_path):
             print(f"error: {csv_path} not found")
             sys.exit(1)
