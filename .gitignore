@@ -9,3 +9,4 @@ __pycache__/
 07-ml-detection/data/sample_*_predictions.json
 07-ml-detection/training_report.md
 training_report.md
+06-forensics/sample_logs/
